@@ -1,3 +1,4 @@
+main :: IO ()
 main = do
     putStrLn "Informe um número: "
     x <- getLine
