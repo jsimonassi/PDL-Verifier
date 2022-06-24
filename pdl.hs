@@ -20,6 +20,7 @@ getOperations program = do
 main :: IO ()
 main = do
     program <- getLine
+    grafo -< getLine
     getOperations program
 
 
@@ -27,3 +28,4 @@ main = do
 -- (X?;a) U (~X?;b)
 -- ;(b,a)
 -- a d c
+-- [";",   "(",   "a,b)"  ]
