@@ -72,8 +72,16 @@ start();
 
 
 /*
-- Como escrever programas grandes em forma de predicado?
+- Como escrever programas grandes em forma de prefixado?
 - Como escrever as uniões em forma de predicado?
+
 - Como funciona a '?'
 - O que devo usar na comparação do grafo? A Aresta? Ou o próximo nó? (Pra validar se está certo ou não)
+
+
+- Dica: Contdor de parênteses;
+- Para escolhas não determinísticas: return esquerda or direita;
+
+
+
 */
