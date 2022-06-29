@@ -1,4 +1,4 @@
-const operators = [';', 'U', '~', '?']
+const operators = [';', 'U', '*'];
 var program
 var graph
 var currentNode;
@@ -15,73 +15,109 @@ const getNextTriple = (indexNode) => {
     return response;
 }
 
-const getOperations = (program) => {
-    debugger
-    if (operators.includes(program[0])) {
-        currentOperator = program.shift()
+
+const getFirstSubProgram = (program, start) => {
+    let opennedBracket = 0;
+    let closedBracket = 0;
+
+    while (!operators.includes(program[start]) && start < program.length) {
+        start++;
     }
 
-    let edge = ''
-    while (program[0] === '(') {
-        program.shift()
+    let end = start;
+    while (end < program.length) {
+        if(program[end] === '('){
+            opennedBracket++;
+        }
+        else if(program[end] === ')'){
+            closedBracket++;
+        }
+        else if(program[end] === ',' && opennedBracket === closedBracket){
+            return program.substring(start, end);
+        }
+        end++;
+    }
+    //Caso base: Não há mais operações internas. Devemos pegar os valores entre parênteses
+    return program.split(',')[0].replace("U", "").replace(";", "").replace("(", "").replace(")", "");
+}
+
+const getSecondSubProgram = (program, start) => {
+    let opennedBracket = 0;
+    let closedBracket = 0;
+
+    while (!operators.includes(program[start]) && start < program.length){
+        start++;
     }
 
-    while (program[0] !== ',' && program[0] !== ')' && program.length > 0) {
-        edge += program.shift()
+    let end = start;
+    while (end < program.length) {
+        if(closedBracket >= opennedBracket && opennedBracket !== 0){
+            return program.substring(start, end);
+        }
+        if(program[end] === '('){
+            opennedBracket++;
+        }
+        else if(program[end] === ')'){
+            closedBracket++;
+        }
+        end++;
     }
+    return program.split(',')[1].replace("U", "").replace(";", "").replace("(", "").replace(")", "");
+}
 
-    if (program.length === 0) { //O Programa está correto!
-        console.log("É VERDADE");
-    }
 
-    switch (currentOperator) {
-        case ';':
-            if (currentNode[2] === edge) {
-                currentNode = getNextTriple(currentNode[1]);
-            }
-            else {
-                console.log("ERROR")
+const executeProgram = (program, cursor, graph) => {
+    let paramA = null;
+    let paramB = null;
+
+
+    if (operators.includes(program[cursor])) {
+        currentOperator = program[cursor];
+        cursor++;
+        switch (currentOperator) {
+            case ';':
+                paramA = getFirstSubProgram(program, cursor);
+                paramB = getSecondSubProgram(program, cursor + paramA.length + 1); //+1 para tirar a vírgula
+                return executeProgram(paramA, 0, graph) && executeProgram(paramB, 0, graph); //Operador sequencial executa os dois!
+            case '?':
+                break;
+
+            case '~':
+                break;
+
+            case 'U':
+                paramA = getFirstSubProgram(program, cursor);
+                paramB = getSecondSubProgram(program, cursor + paramA.length + 1); //+1 para tirar a vírgula
+                return executeProgram (paramA, 0, graph) || executeProgram (paramB, 0, graph);
+
+            default:
                 return;
-            }
-            program.shift() //tira vírgula ou outros operadores
-            getOperations(program)
-            break;
-
-        case '?':
-            program.shift() //tira vírgula ou outros operadores
-            getOperations(program)
-
-        default:
-            console.log("Aloo");
-            break;
+                break;
+        }
     }
+
+
+    if(program.includes('?')){
+        return true;
+    }
+
+    graph.forEach(element => {
+        if(element[2] === program){
+            return true;
+        }
+    });
+
+    return false;
 }
 
 
 const start = () => {
-    graph = [[1, 2, "a"], [2, 3, "b"], [3, -1, ""]];
-    // graph = [[1, 2, "a"], [1, 3, "b"], [2, -1, ''], [3, -1, '']];
-    program = ";(a,?b)"
+    graph = [[0, 1, "y"], [0, 2, "z"]];
+    program = "U(;(x?,y),;(~x,z))";
     currentNode = graph[0]; //Início do programa
-    getOperations(program.split(""));
+    console.log(executeProgram(program, 0, graph));
 }
 
 
 
 start();
-
-
-/*
-- Como escrever programas grandes em forma de prefixado?
-- Como escrever as uniões em forma de predicado?
-
-- Como funciona a '?'
-- O que devo usar na comparação do grafo? A Aresta? Ou o próximo nó? (Pra validar se está certo ou não)
-
-
-- Dica: Contdor de parênteses;
-- Para escolhas não determinísticas: return esquerda or direita;
-
-
-
-*/
