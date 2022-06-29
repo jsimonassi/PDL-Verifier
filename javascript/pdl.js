@@ -1,19 +1,7 @@
 const operators = [';', 'U', '*'];
 var program
 var graph
-var currentNode;
 var currentOperator;
-
-const getNextTriple = (indexNode) => {
-    let response = undefined;
-    graph.forEach(element => {
-        if (element[0] === indexNode) {
-            response = element;
-            return element;
-        }
-    });
-    return response;
-}
 
 
 const getFirstSubProgram = (program, start) => {
@@ -62,11 +50,12 @@ const getSecondSubProgram = (program, start) => {
         }
         end++;
     }
+    //Caso base: Não há mais operações internas. Devemos pegar os valores entre parênteses
     return program.split(',')[1].replace("U", "").replace(";", "").replace("(", "").replace(")", "");
 }
 
 
-const executeProgram = (program, cursor, graph) => {
+const executeProgram = (program, cursor) => {
     let paramA = null;
     let paramB = null;
 
@@ -78,21 +67,17 @@ const executeProgram = (program, cursor, graph) => {
             case ';':
                 paramA = getFirstSubProgram(program, cursor);
                 paramB = getSecondSubProgram(program, cursor + paramA.length + 1); //+1 para tirar a vírgula
-                return executeProgram(paramA, 0, graph) && executeProgram(paramB, 0, graph); //Operador sequencial executa os dois!
-            case '?':
-                break;
-
-            case '~':
-                break;
-
+                return executeProgram(paramA, 0) && executeProgram(paramB, 0); //Operador sequencial executa os dois!
             case 'U':
                 paramA = getFirstSubProgram(program, cursor);
                 paramB = getSecondSubProgram(program, cursor + paramA.length + 1); //+1 para tirar a vírgula
-                return executeProgram (paramA, 0, graph) || executeProgram (paramB, 0, graph);
+                return executeProgram (paramA, 0) || executeProgram (paramB, 0);
+            case '*':
+                console.log("Operador * não implementado");
+                return false;
 
             default:
-                return;
-                break;
+                return false;
         }
     }
 
@@ -101,23 +86,31 @@ const executeProgram = (program, cursor, graph) => {
         return true;
     }
 
-    graph.forEach(element => {
-        if(element[2] === program){
-            return true;
+    //Essa verificação está bem ruim, mas não consegui chegar em nada melhor que isso.
+    //O ideal seria usar a recursão para navegar pelo grafo verificando sempre a próxima aresta e não uma aresta aleatória, como está acontecendo aqui.
+    let needRemove = -1;
+    for(let i = 0; i < graph.length; i++){
+        if(graph[i][2] === program){
+            needRemove = i;
+            break;
         }
-    });
+    }
+    if(needRemove !== -1){
+        graph.splice(needRemove, 1);
+        return true;
+    }
 
+    //Se não está no grafo, é falso.
     return false;
 }
 
 
 const start = () => {
-    graph = [[0, 1, "y"], [0, 2, "z"]];
-    program = "U(;(x?,y),;(~x,z))";
-    currentNode = graph[0]; //Início do programa
-    console.log(executeProgram(program, 0, graph));
+    //graph = [[1, 2, "w"], [1, 3, "z"], [2, 4, "y"]]; //Grafo correto
+    graph = [[1, 2, "w"], [1, 3, "a"], [2, 4, "b"]]; //Grafo incorreto
+    program = "U(;(x?,;(w,y)),;(~x?,z))";
+    console.log(executeProgram(program, 0));
 }
-
 
 
 start();
