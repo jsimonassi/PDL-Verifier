@@ -2,8 +2,6 @@
 
 
 module Utils (substring, contains, includes, get, split, removeChar) where
-import Data.Text (replace)
-import Text.Parsec.Token (GenTokenParser(operator))
 
 -- Retorna uma substring com base na string informada e no índice inicial e final
 substring :: String -> Int -> Int -> String
