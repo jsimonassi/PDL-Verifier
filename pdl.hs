@@ -1,31 +1,39 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
-split :: [Char] -> [[Char]]
-split str = case break (=='(') str of
-                (a, '(':b) -> a : "(" : split b
-                (a, "")    -> [a]
+-- split :: [Char] -> [[Char]]
+-- split str = case break (=='(') str of
+--                 (a, '(':b) -> a : "(" : split b
+--                 (a, "")    -> [a]
 
-head :: [Char] -> Char
-head (x:_) = x
+-- head :: [Char] -> Char
+-- head (x:_) = x
 
 
-getOperations program = do
-  let splitedArray = split program
-  let operator = Prelude.head splitedArray
-  print operator
-  print splitedArray
+-- getOperations program = do
+--   let splitedArray = split program
+--   let operator = Prelude.head splitedArray
+--   print operator
+--   print splitedArray
   -- getOperations program
 
 
-main :: IO ()
-main = do
-    program <- getLine
-    grafo -< getLine
-    getOperations program
+
+type Estados = Int
+type Letra = Char
+type Aresta = (Estados, Estados,Letra)
+type Grafo = [Aresta]
+type Operacoes = Char
 
 
--- if x then a else b
--- (X?;a) U (~X?;b)
--- ;(b,a)
--- a d c
--- [";",   "(",   "a,b)"  ]
+operacoes :: Operacoes
+operacoes = ";"
+
+grafo :: [Aresta]
+grafo = [
+        (1,2,"A"), (2,3,"B")
+    ]
+
+programa :: Grafo -> Operacoes -> [Int]
+programa [] _  = []
+programa ((a,b,c):d) oper
+        | (";"== oper) = b:(programa d oper)
