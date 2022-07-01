@@ -1,7 +1,8 @@
 -- Utils.hs será responsável por todas as funções auxiliares de manipulação de string (Todas que usamos no code javascript)
 
 
-module Utils (substring, contains, includes, get, split, removeChar) where
+module Utils (substring, contains, includes, get, split, removeChar, debug) where
+import Debug.Trace
 
 -- Retorna uma substring com base na string informada e no índice inicial e final
 substring :: String -> Int -> Int -> String
@@ -35,5 +36,8 @@ split p s =  case dropWhile p s of
 -- Remove um caractere da string
 removeChar :: String -> Char -> String
 removeChar [] _ = []
-removeChar (x:xs) n = if (x == n) then removeChar xs n
+removeChar (x:xs) n = if x == n then removeChar xs n
                  else x : removeChar xs n
+
+
+debug = flip trace
