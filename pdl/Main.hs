@@ -1,6 +1,9 @@
 -- Baseado no código em javascript:
 -- 1 - Precisamos quebrar o programa entrada e transformá-lo em uma árvore.
 -- 2 - Verificar cada execução da árvore em um grafo para testar a corretude da solução.
+--CONSULTA REGRAS DE NEGOCIO
+--se for U entao retornar quando openbracket - close bracket ==1 && openbracket e closebracket >0 na virgula
+-- se for ; entao retornar quando openbracket - closebracket == 1 na virgula
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Redundant if" #-}
@@ -15,9 +18,12 @@ import Utils (contains, get, includes, removeChar, split, substring)
 
 -- program = "U(;(a,b),U(;(b,a),(;(a,b))))"
 
--- program = ";(a,b),;(a,b)"
 program :: String
-program = "U(;(a,b),;(*(a),b))"
+-- program = "U(;(a,b),;(*a,b))"
+
+program = ";(a,b)" --- ->>>;(a,b)    ;(*a,b) =>>>     a     b   -----   *a     b
+
+-- program = ";(a,b),;(a,b)"
 
 operations :: [String]
 operations = ["U", ";", "*"]
@@ -48,63 +54,37 @@ validateGraph ((a, b, c) : tale) program start = do
     then True
     else validateGraph tale program (start + 1)
 
-getFirstSubProgram :: String -> Int -> Int -> Int -> Int -> String
-getFirstSubProgram program start end opennedBracket closedBracket = do
-  -- aux program operations = do
-  --     if(not(includes program operations)) then
-  --         aux program (start + 1) (end + 1) opennedBracket closedBracket
-
-  if ((get program end) == "(")
-    then getFirstSubProgram program start (end + 1) (opennedBracket + 1) (closedBracket)
+getFirstSubProgram :: String -> Int -> Int -> Int -> Int -> String -> String
+getFirstSubProgram program start end opennedBracket closedBracket operation = do
+  if (operation == "U" && (opennedBracket - closedBracket == 1) && (opennedBracket > 0) && (closedBracket > 0) && (get program end) == ",")
+    then substring program start (end)
     else
-      if ((get program end) == ")")
-        then getFirstSubProgram program start (end + 1) (opennedBracket) (closedBracket + 1)
+      if (operation == ";" && (opennedBracket - closedBracket == 1) && (get program end) == ",")
+        then substring program start (end)
         else
-          if ((get program end) == "," && (opennedBracket == closedBracket))
-            then substring program start end
-            else -- else
-            --   if ((get program end) == "," && (opennedBracket > 1) && (closedBracket > 1) && (opennedBracket - closedBracket == 1))
-            --     then substring program start end
-            --     else
-            --       if ((get program end) == "")
-            --         then substring program start end
-            -- else
-            --   if (((get program end) /= "U") && ((get program end) /= ";") && ((get program end) /= "*") && (closedBracket == opennedBracket))
-            --     then getFirstSubProgram program (start + 1) (end + 1) opennedBracket closedBracket
-            --     else
-            --       if (((get program end) /= "U") && ((get program end) /= ";") && ((get program end) /= "*") && (closedBracket < opennedBracket))
-            --         then getFirstSubProgram program start (end + 1) opennedBracket closedBracket
-              getFirstSubProgram program start (end + 1) (opennedBracket) (closedBracket)
+          if ((get program end) == "(")
+            then getFirstSubProgram program start (end + 1) (opennedBracket + 1) (closedBracket) operation
+            else
+              if ((get program end) == ")")
+                then getFirstSubProgram program start (end + 1) (opennedBracket) (closedBracket + 1) operation
+                else getFirstSubProgram program start (end + 1) (opennedBracket) (closedBracket) operation
 
 -- TODO caso base getFirstSubProgram
 
-getSecondSubProgram :: String -> Int -> Int -> Int -> Int -> String
-getSecondSubProgram program start end opennedBracket closedBracket = do
-  -- aux program operations = do
-  --     if(not(includes program operations)) then
-  --         aux program (start + 1) (end + 1) opennedBracket closedBracket
-
-  if ((get program end) == "(")
-    then getSecondSubProgram program start (end + 1) (opennedBracket + 1) (closedBracket)
+getSecondSubProgram :: String -> Int -> Int -> Int -> Int -> String -> String
+getSecondSubProgram program start end opennedBracket closedBracket operation = do
+  if (operation == "U" && (opennedBracket - closedBracket == 1) && (opennedBracket > 0) && (closedBracket > 0) && (get program end) == ",")
+    then substring program start (end)
     else
-      if ((get program end) == ")")
-        then getSecondSubProgram program start (end + 1) (opennedBracket) (closedBracket + 1)
+      if (operation == ";" && (opennedBracket - closedBracket == 1) && (get program end) == ",")
+        then substring program start (end)
         else
-          if ((get program end) == "," && (opennedBracket == closedBracket))
-            then substring program start end
+          if ((get program end) == "(")
+            then getSecondSubProgram program start (end + 1) (opennedBracket + 1) (closedBracket) operation
             else
-              if ((get program end) == "," && (opennedBracket > 1) && (closedBracket > 1) && (opennedBracket - closedBracket == 1))
-                then substring program start end
-                else
-                  if ((get program end) == "")
-                    then substring program start end
-                    else -- else
-                    --   if (((get program end) /= "U") && ((get program end) /= ";") && ((get program end) /= "*") && (closedBracket == opennedBracket))
-                    --     then getSecondSubProgram program (start + 1) (end + 1) opennedBracket closedBracket
-                    --     else
-                    --       if (((get program end) /= "U") && ((get program end) /= ";") && ((get program end) /= "*") && (closedBracket < opennedBracket))
-                    --         then getSecondSubProgram program start (end + 1) opennedBracket closedBracket
-                      getSecondSubProgram program start (end + 1) (opennedBracket) (closedBracket)
+              if ((get program end) == ")")
+                then getSecondSubProgram program start (end + 1) (opennedBracket) (closedBracket + 1) operation
+                else getSecondSubProgram program start (end + 1) (opennedBracket) (closedBracket) operation
 
 -- TODO caso base  getSecondSubProgram
 
@@ -120,19 +100,19 @@ executeProgram program cursor = do
             -- Tem que seguir daqui :)
             let switch currentOperator
                   | currentOperator == ";" = do
-                    let paramA = getFirstSubProgram program updatedCursor updatedCursor 0 0 --program start end  opennedBracket closedBracket
-                    let paramB = getSecondSubProgram program (length paramA + 1) (length paramA + 1) 0 0 --program, (start + paramA.length), end, opennedBracket, closedBracket
+                    let paramA = getFirstSubProgram program 0 0 0 0 currentOperator --program start end  opennedBracket closedBracket
+                    let paramB = getSecondSubProgram program (length paramA + 1) (length paramA + 1) 0 0 currentOperator --program, (start + paramA.length), end, opennedBracket, closedBracket
                     -- if((validateGraph grafo paramA 0) && (validadeGraph grafo paramB 0)) then
                     --     True
                     -- else
                     (executeProgram paramA 0) && (executeProgram paramB 0)
                   | currentOperator == "U" = do
-                    let paramA = getFirstSubProgram program updatedCursor updatedCursor 0 0 --program start end opennedBracket closedBracket
-                    let paramB = getSecondSubProgram program (length paramA + 1) (length paramA + 1) 0 0 --program, (start + paramA.length), end, opennedBracket, closedBracket
+                    let paramA = getFirstSubProgram program 0 0 0 0 currentOperator --program start end opennedBracket closedBracket
+                    let paramB = getSecondSubProgram program (length paramA + 1) (length paramA + 1) 0 0 currentOperator --program, (start + paramA.length), end, opennedBracket, closedBracket
                     (executeProgram paramA 0) || (executeProgram paramB 0)
                   | currentOperator == "*" = do
-                    let paramA = getFirstSubProgram program updatedCursor updatedCursor 0 0 --program start end  opennedBracket closedBracket
-                    let paramB = getSecondSubProgram program updatedCursor cursor 0 0 --program, (start + paramA.length), end, opennedBracket, closedBracket
+                    let paramA = getFirstSubProgram program 0 0 0 0 currentOperator --program start end  opennedBracket closedBracket
+                    let paramB = getSecondSubProgram program 0 0 0 0 currentOperator --program, (start + paramA.length), end, opennedBracket, closedBracket
                     (executeProgram paramA 0)
                   | otherwise = False
 
@@ -156,13 +136,13 @@ executeProgram program cursor = do
 -- Início da aplicação
 start :: IO ()
 start = do
-  print program -- Teste, deve ser removido
-  print (get program 0) -- Teste, deve ser removido
+  -- print program -- Teste, deve ser removido
+  -- print (get program 0) -- Teste, deve ser removido
   -- print(includes operations (get program 0)) -- Teste, deve ser removido
   -- print(split (==',') ";(x,y)" ) -- Teste, deve ser removido
   --print (removeChar "teste" 1) -- Teste, deve ser removido
-  print (getFirstSubProgram program 0 0 0 0)
-  print (getSecondSubProgram program 15 15 0 0)
+  print (getFirstSubProgram program 0 0 0 0 ";")
+  -- print (getSecondSubProgram program 9 9 0 0 ";")
 
   -- print (substring "nome" 0 4)
 
