@@ -6,8 +6,8 @@
 import Utils (contains, get, includes, removeChar, split, substring, debug)
 import Debug.Trace (traceShow)
 
-program :: String
-program = "U(;(x?,;(w,y)),;(~x?,z))"
+entryProgram :: String
+entryProgram = "U(;(x?,;(w,y)),;(~x?,z))"
 
 operations :: [String]
 operations = ["U", ";", "*"]
@@ -17,7 +17,7 @@ type Edge = (Vortex, Vortex, Char)
 type Graph = [Edge]
 
 graph :: [Edge]
-graph =[(1, 2, 'w'), (1, 3, 'z'), (2, 4, 'y')]
+graph =[(1, 2, 'w'), (1, 3, 'z'), (2, 4, 'a')]
 
 validateGraph :: String -> Graph -> Bool
 validateGraph _ [] = False
@@ -115,19 +115,14 @@ executeProgram program cursor = do
     let result = if isOperator
                     then switch program (cursor +1) (get program cursor) -- Chama o switch case de operações e aplica a recursão
                   else do
-                      let operation = get program cursor
                       False
 
-    let isSameState = contains program "?"
+    get program (length program -1) == "?" || validateGraph program graph || result
 
-    let needRemove = -1;
-    let allRight = validateGraph program graph
-
-    True
 
 -- Início da aplicação
 start :: IO ()
 start =
-  print (executeProgram program 0)
+  print (executeProgram entryProgram 0)
   -- print (validateGraph "t" graph)
 
