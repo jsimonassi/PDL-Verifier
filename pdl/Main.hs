@@ -34,13 +34,20 @@ type Graph = [Edge]
 graph :: [Edge]
 graph =[(1, 2, 'a'), (2, 3, 'c'), (3, 4, 'c')]
 
+
 graph5 :: [Edge]
 graph5 =[(1, 2, 'a'), (2, 3, 'c'), (1, 4, 'c')]
+
 
 validateGraph :: String -> Graph -> Bool
 validateGraph _ [] = False
 validateGraph program ((a, b, c) : tail) = do
   program == [c] || validateGraph program tail
+
+
+removeGraph ::  Graph -> Graph
+removeGraph ((a, b, c) : tail) = do
+    tail
 
 
 -- Itera e devolve a posição inicial
