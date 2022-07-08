@@ -9,6 +9,21 @@ import Debug.Trace (traceShow)
 entryProgram :: String
 entryProgram = "U(;(x?,;(w,y)),;(~x?,z))"
 
+entryProgram1 :: String
+entryProgram1 = ";(;(a,b),d)"
+
+entryProgram2 :: [Char]
+entryProgram2 = ";(w,z)"
+
+entryProgram3 :: [Char]
+entryProgram3 = "*(a)"
+
+entryProgram4 :: [Char]
+entryProgram4 = "*(;(a,b))"
+
+entryProgram5 :: [Char]
+entryProgram5 = "U(;(a,c),;(a,b))"
+
 operations :: [String]
 operations = ["U", ";", "*"]
 
@@ -17,7 +32,10 @@ type Edge = (Vortex, Vortex, Char)
 type Graph = [Edge]
 
 graph :: [Edge]
-graph =[(1, 2, 'w'), (1, 3, 'z'), (2, 4, 'a')]
+graph =[(1, 2, 'a'), (2, 3, 'c'), (3, 4, 'c')]
+
+graph5 :: [Edge]
+graph5 =[(1, 2, 'a'), (2, 3, 'c'), (1, 4, 'c')]
 
 validateGraph :: String -> Graph -> Bool
 validateGraph _ [] = False
@@ -50,8 +68,7 @@ getFirst input opennedBracket closedBracket start end =
           else
             getFirst input opennedBracket closedBracket start (end + 1)
   else
-    -- return program.split(',')[0].replace("U", "").replace(";", "").replace("(", "").replace(")", "");
-     removeChar (removeChar (removeChar (removeChar (head (split (==',') input)) 'U') ';') '(') ')'
+     removeChar (removeChar (removeChar (removeChar (removeChar (head (split (==',') input)) '*') 'U') ';') '(') ')'
 
 
 getFirstSubProgram :: String -> Int -> String
@@ -64,7 +81,7 @@ getFirstSubProgram input strStart = do
 
 
 
----------------------------------------- getFirstSubprogram --------------------------------------
+---------------------------------------- getSecondSubprogram --------------------------------------
 
 -- Itera chamando recursivamente e quebrando a string: while (end < program.length) {
 getSecond :: String -> Int -> Int -> Int -> Int -> String
@@ -79,7 +96,6 @@ getSecond input opennedBracket closedBracket start end =
           else
             getSecond input opennedBracket closedBracket start (end + 1)
   else
-    -- return program.split(',')[0].replace("U", "").replace(";", "").replace("(", "").replace(")", "");
      removeChar (removeChar (removeChar (removeChar (last (split (==',') input)) 'U') ';') '(') ')'
 
 
@@ -103,7 +119,9 @@ switch program updatedCursor currentOperator
     let paramA = getFirstSubProgram program updatedCursor
     let paramB = getSecondSubProgram program (length paramA + 1)
     executeProgram paramA 0 && executeProgram paramB 0
-  | currentOperator == "*" = False
+  | currentOperator == "*" = do
+    let paramA = getFirstSubProgram program updatedCursor
+    executeProgram paramA 0
   | otherwise = False
 
 
@@ -117,12 +135,11 @@ executeProgram program cursor = do
                   else do
                       False
 
-    get program (length program -1) == "?" || validateGraph program graph || result
+    get program (length program -1) == "?" || validateGraph program graph5 || result
 
 
 -- Início da aplicação
 start :: IO ()
 start =
-  print (executeProgram entryProgram 0)
-  -- print (validateGraph "t" graph)
+  print (executeProgram entryProgram5 0)
 
